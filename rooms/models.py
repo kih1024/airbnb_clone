@@ -63,25 +63,35 @@ class Room(core_models.TimeStampedModel):
     check_out = models.TimeField()
     instant_book = models.BooleanField(default=False)
     host = models.ForeignKey(
-        user_models.User, on_delete=models.CASCADE
+        user_models.User, related_name="rooms", on_delete=models.CASCADE
     )  # 일대다 관계. user가 삭제되면 해당 room도 삭제된다. models.PROTECT는 rooms 가 있으면 user는 삭제 못하게 한다.
     room_type = models.ForeignKey(
-        RoomType, blank=True, on_delete=models.SET_NULL, null=True
+        RoomType,
+        related_name="rooms",
+        blank=True,
+        on_delete=models.SET_NULL,
+        null=True,
     )
-    amenities = models.ManyToManyField(Amenity, blank=True)  # 다대다 관계
-    facilities = models.ManyToManyField(Facility, blank=True)  # 다대다 관계
-    house_rules = models.ManyToManyField(HouseRule, blank=True)  # 다대다 관계
+    amenities = models.ManyToManyField(
+        Amenity, related_name="rooms", blank=True
+    )  # 다대다 관계
+    facilities = models.ManyToManyField(
+        Facility, related_name="rooms", blank=True
+    )  # 다대다 관계
+    house_rules = models.ManyToManyField(
+        HouseRule, related_name="rooms", blank=True
+    )  # 다대다 관계
 
     def __str__(self):
         return self.name
 
 
-class Photo(AbstractItem):
+class Photo(core_models.TimeStampedModel):
     """ Photo Model Definition """
 
     caption = models.CharField(max_length=80)
     file = models.ImageField()
-    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    room = models.ForeignKey(Room, related_name="photos", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.caption
