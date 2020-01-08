@@ -7,6 +7,11 @@ class ItemAdmin(admin.ModelAdmin):
 
     """ Item Admin Definition """
 
+    list_display = ("name","used_by")
+
+    def used_by(self, obj):
+        return obj.rooms.count()
+
     pass
 
 
@@ -26,10 +31,11 @@ class RoomAdmin(admin.ModelAdmin):
             "More About the Space",
             {
                 "classes": ("collapse",),
-                "fields": ("amenities", "facilities", "house_rules")
+                "fields": ("amenities", "facilities", "house_rules"),
             },
         ),
         ("Last Details", {"fields": ("host",)},),
+        ("Room Types", {"fields": ("room_type",)},),
     )
     list_display = (
         "name",
@@ -43,7 +49,11 @@ class RoomAdmin(admin.ModelAdmin):
         "check_in",
         "check_out",
         "instant_book",
+        "count_amenities",
+        "count_photos",
     )
+
+    # ordering = ("name", "price")
 
     list_filter = (
         "instant_book",
@@ -55,14 +65,20 @@ class RoomAdmin(admin.ModelAdmin):
         "city",
         "country",
     )
-    search_fields = ("city",)
+    search_fields = ("city", "^host__username")
 
     filter_horizontal = (
         "amenities",
         "facilities",
         "house_rules",
     )
-    pass
+
+    def count_amenities(self, obj):
+        print(obj.amenities.all())
+        return obj.amenities.count()
+
+    def count_photos(self, obj): 
+        return obj.photos.count()# foreign key 로 연결되있어서 가능하다 원래는 photos는 photo_set
 
 
 # Register your models here.
