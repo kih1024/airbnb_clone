@@ -4,12 +4,23 @@ from core import models as core_models
 
 class Conversation(core_models.TimeStampedModel):
     participants = models.ManyToManyField(
-        "users.user", related_name="conversations", blank=True
+        "users.User", related_name="conversations", blank=True
     )
 
     def __str__(self):
-        return str(self.created)
+        usernames = []
+        for user in self.participants.all():
+            usernames.append(user.username)
+        return ", ".join(usernames)
 
+    def count_messages(self):
+        return self.messages.count()
+    count_messages.short_description = "Nuber of Messages"
+    
+    def count_participants(self):
+        return self.participants.count()
+    count_participants.short_description = "Nuber of Participants"
+    
 
 # Create your models here.
 
