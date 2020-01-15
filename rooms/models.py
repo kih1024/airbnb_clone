@@ -84,15 +84,24 @@ class Room(core_models.TimeStampedModel):
 
     def __str__(self):
         return self.name
-        
+
+    def save(self, *args, **kwargs):
+        self.city = str.capitalize(self.city)  # 첫 글자 대문자로 저장되게 하였다.
+        super().save(
+            *args, **kwargs
+        )  # 모델에서 save를 쓸 경우 어드민,콘솔,뷰 에서건 모델을 저장할수 있다. 하지만 사용자가 어드민에서만 저장하고 싶을때는 admin의 save_model 메소드를 이용
+
     def total_rating(self):
         all_reviews = self.reviews.all()
         all_ratings = 0
         for review in all_reviews:
             all_ratings += review.rating_average()
-        return all_ratings / len(all_reviews)
 
-    
+        if len(all_reviews) > 0:
+            for review in all_reviews:
+                all_ratings += review.rating_average()
+            return all_ratings / len(all_reviews)
+        return 0
 
 
 class Photo(core_models.TimeStampedModel):
