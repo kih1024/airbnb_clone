@@ -64,7 +64,7 @@ class Room(core_models.TimeStampedModel):
     instant_book = models.BooleanField(default=False)
     host = models.ForeignKey(
         user_models.User, related_name="rooms", on_delete=models.CASCADE
-    )  # 일대다 관계. user가 삭제되면 해당 room도 삭제된다. models.PROTECT는 rooms 가 있으면 user는 삭제 못하게 한다.
+    )  # 일대다 관계. user가 삭제되면 해당 room도 삭제된다. models.PROTECT는 rooms 가 있으면 user는 삭제 못하게 한다. 
     room_type = models.ForeignKey(
         RoomType,
         related_name="rooms",
@@ -100,7 +100,7 @@ class Room(core_models.TimeStampedModel):
         if len(all_reviews) > 0:
             for review in all_reviews:
                 all_ratings += review.rating_average()
-            return all_ratings / len(all_reviews)
+            return round((all_ratings) / len(all_reviews))
         return 0
 
 
