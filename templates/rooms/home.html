@@ -1,0 +1,38 @@
+{% extends "base.html" %} 
+
+{% block page_name %}
+    Home
+{% endblock page_name %}
+{% block content %}
+
+    {% for room in rooms %}
+        <h1>{{room.name}} / ${{room.price}}</h1>
+    {% endfor %}
+
+    <h5> Page {{page}} of {{page_count}} </h5>
+
+    {% for page in page_range %}
+        <a href="?page={{page}}">{{page}}</a>
+    {% endfor %}
+
+{% endblock content %}
+    
+
+
+
+
+
+
+
+<!-- {% comment %} <h4>The time right now is : {{now}}</h4>
+
+<h6>
+{% if hungry %}
+    I'm hungry
+{% else %}
+    i'm okay
+{% endif %} {% endcomment %} -->
+
+
+
+<!-- <h5>I'm hungry {{hungry}}</h5> -->
