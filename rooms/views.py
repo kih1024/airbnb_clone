@@ -1,21 +1,23 @@
-from math import ceil
 from . import models
-from django.shortcuts import render
-from django.core.paginator import Paginator
+from django.shortcuts import render, redirect
+from django.core.paginator import Paginator, EmptyPage
 
 # from django.http import HttpResponse
 
 
 def all_rooms(request):
-    page = request.GET.get("page")
+    page = request.GET.get("page",1)
     room_list = (
         models.Room.objects.all()
     )  # 이렇게 하면 쿼리셋만 만드는거지 데이터베이스에서 불러오는게 아님. 호출할때 그때서야 디비에서 값들을 불러옴. 매우 게으름..
-    paginator = Paginator(room_list, 10)
-    rooms = paginator.get_page(page)
+    paginator = Paginator(room_list, 10, orphans=5)
+    try:
+        rooms = paginator.page(int(page))
+        return render(request, "rooms/home.html", {"page": rooms})
+    except EmptyPage:
+        return redirect("/")
     # print(rooms)
     print(vars(rooms))
-    return render(request, "rooms/home.html", {"rooms": rooms})
 
     # print(vars(rooms.paginator))
     # page = int(page or 1)
