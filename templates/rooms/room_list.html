@@ -4,9 +4,14 @@
     Home
 {% endblock page_name %}
 {% block content %}
-
+    {{now}}
     {% for room in object_list %}
-        <h1>{{room.name}} / ${{room.price}}</h1>
+        <h3>
+            {% comment %} <a href="/rooms/{{room.pk}}"> {% endcomment %}
+            <a href="{% url "rooms:detail" room.pk %}">
+                {{room.name}} / ${{room.price}}
+            </a>
+        </h3>
     {% endfor %}
 {% comment %} listview에서 page_obj는 paginator를 꽁짜로 가져온것임  {% endcomment %}
     <h5>
