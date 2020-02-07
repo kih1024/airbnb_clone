@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from django_countries.fields import CountryField
 from core import models as core_models
 from users import models as user_models
@@ -64,7 +65,7 @@ class Room(core_models.TimeStampedModel):
     instant_book = models.BooleanField(default=False)
     host = models.ForeignKey(
         user_models.User, related_name="rooms", on_delete=models.CASCADE
-    )  # 일대다 관계. user가 삭제되면 해당 room도 삭제된다. models.PROTECT는 rooms 가 있으면 user는 삭제 못하게 한다. 
+    )  # 일대다 관계. user가 삭제되면 해당 room도 삭제된다. models.PROTECT는 rooms 가 있으면 user는 삭제 못하게 한다.
     room_type = models.ForeignKey(
         RoomType,
         related_name="rooms",
@@ -90,6 +91,9 @@ class Room(core_models.TimeStampedModel):
         super().save(
             *args, **kwargs
         )  # 모델에서 save를 쓸 경우 어드민,콘솔,뷰 에서건 모델을 저장할수 있다. 하지만 사용자가 어드민에서만 저장하고 싶을때는 admin의 save_model 메소드를 이용
+
+    def get_absolute_url(self):  # django admin 페이지에서 해당 페이지를 바로 볼수 있게 해준다
+        return reverse("rooms:detail", kwargs={"pk": self.pk})
 
     def total_rating(self):
         all_reviews = self.reviews.all()
