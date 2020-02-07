@@ -1,6 +1,9 @@
 from . import models
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django.shortcuts import render
+
+# from django.http import Http404
+# from django.shortcuts import render
 
 # from django.shortcuts import render, redirect
 # from django.core.paginator import Paginator, EmptyPage
@@ -17,11 +20,6 @@ class HomeView(ListView):
     paginate_orphans = 5
     ordering = "created"
 
-
-def room_detail(request, pk):
-    print(pk)
-    return render(request, "rooms/detail.html")
-
     # context를 추가 하고 싶다면 다음과 같은 function을 사용
     # def get_context_data(self, **kwargs):
     #     context = super().get_context_data(**kwargs)
@@ -30,6 +28,28 @@ def room_detail(request, pk):
     #     return context
 
     # context_object_name = "rooms"
+
+
+class RoomDetail(DetailView):
+
+    """ RoomDetail Definition """
+
+    model = models.Room
+
+
+def search(request):
+    city = request.GET.get("city")
+    city = str.capitalize(city)
+    return render(request, "rooms/search.html", {"city": city})
+
+
+# def room_detail(request, pk):
+#     try:
+#         room = models.Room.objects.get(pk=pk)
+#         return render(request, "rooms/detail.html", {"room": room})
+#     except models.Room.DoesNotExist:
+#         raise Http404()
+#         # return redirect(reverse("core:home"))
 
 
 # def all_rooms(request):
