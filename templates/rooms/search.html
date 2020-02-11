@@ -15,7 +15,7 @@
     <form method = "get" action="{% url "rooms:search" %}">
         <div>
         <label for="city">City</label>
-        <input value="{{city}}" id="city" name="city" placeholder="Search by City" />
+        <input value="{{city}}" id="city" name="city" placeholder="Search by City" >
         </div>
 
         <div>
@@ -114,4 +114,7 @@
         <button>Search</button>
         {% comment %} submit도 가능 하지만 html에서 button이 한개면 submit 역할을 함 {% endcomment %}
     </form>
+
+    <h3>Results</h3>
+    {% for room in rooms %}{{room.name}} & {% endfor %}
 {% endblock content %}
