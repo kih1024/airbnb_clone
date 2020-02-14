@@ -1,6 +1,6 @@
 from django.views.generic import ListView, DetailView, View
 from django.shortcuts import render
-from django_countries import countries
+from django.core.paginator import Paginator
 from . import models, forms
 
 # from django.http import Http404
@@ -29,13 +29,14 @@ class RoomDetail(DetailView):
     model = models.Room
 
 class SearchView(View):
+
     def get(self, request):
         country = request.GET.get("country")
         if country:
             form = forms.SearchForm(request.GET)
 
             if form.is_valid():
-                print(form.cleaned_data)
+                # print(form.cleaned_data)
                 city = form.cleaned_data.get("city")
                 country = form.cleaned_data.get("country")
                 room_type = form.cleaned_data.get("room_type")
@@ -75,16 +76,21 @@ class SearchView(View):
                 if superhost is True:
                     filter_args["host__superhost"] = True
 
-                rooms = models.Room.objects.filter(**filter_args)
+                qs = models.Room.objects.filter(**filter_args).order_by("-created")
 
                 for amenity in amenities:
-                    rooms = rooms.filter(amenities=amenity)
+                    qs = qs.filter(amenities=amenity)
                 for facility in facilities:
-                    rooms = rooms.filter(facilities=facility)
+                    qs = qs.filter(facilities=facility)
+
+                paginator = Paginator(qs, 10, orphans=5)
+                page = request.GET.get("page",1)
+                rooms = paginator.get_page(page)
+                return render(request, "rooms/search.html", {"form": form, "rooms":rooms})
         else:
             form = forms.SearchForm()
 
-        return render(request, "rooms/search.html", {"form": form, "rooms": rooms})
+        return render(request, "rooms/search.html", {"form": form})
         
 
 # def search(request):
