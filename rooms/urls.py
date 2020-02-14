@@ -5,7 +5,7 @@ app_name = "rooms"
 
 urlpatterns = [
     path("<int:pk>", views.RoomDetail.as_view(), name="detail"),
-    path("search/", views.search, name="search"),
+    path("search/", views.SearchView.as_view(), name="search"),
 ]
 # urlpatterns = [path("<int:pk>", views.room_detail, name="detail")]
 # detail은 argument(pk) 가 필요하다
