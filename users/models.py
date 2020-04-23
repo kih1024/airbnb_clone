@@ -3,6 +3,11 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.mail import send_mail
+from django.utils.html import strip_tags
+from django.template.loader import render_to_string
+
+# template를 road해서 render 한다
+
 
 # Create your models here.
 class User(AbstractUser):
@@ -52,11 +57,18 @@ class User(AbstractUser):
         if self.email_verified is False:
             secret = uuid.uuid4().hex[:20]
             self.email_secret = secret
+            html_message = render_to_string(
+                "emails/verify_email.html", {"secret": secret}
+            )
             send_mail(
                 "Verify Airbnb Account",
-                f"Verify account, this is your secret: {secret}",
+                strip_tags(html_message),
                 settings.EMAIL_FROM,
                 [self.email],
                 fail_silently=False,
+                html_message=html_message,
             )
+            self.save()
+            # strip_tags는 html을 html형태를 제외한 상태로 return하는 거다. html 메세지를 text메세지를 바꾸기 위해서
+            # 그 이유는 가끔씩 html_message를 이메일로 보낼 수 없기 때문이다.
         return
