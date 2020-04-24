@@ -10,6 +10,7 @@
 
 
 {% block content %}
+    {% include 'partials/social_login.html' %}
     <form method="POST" action="{% url "users:login" %}">
         {{form.as_p}}
         {% comment %} csrf는 이 사이트에서 로그인했는지 확인해준다
