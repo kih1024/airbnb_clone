@@ -9,7 +9,6 @@ from . import forms, models
 
 
 class LoginView(FormView):
-
     template_name = "users/login.html"
     form_class = forms.LoginForm
     # 그냥 reverse를 사용하면 view을 불러올때 url이 아직 불려지지 않아서 오류가 발생한다.(lazy : 실행하지 않는다) 그래서 view가 필요할떄만 호출하는 reverse_lazy라는 것을 사용한다고 한다.
@@ -81,6 +80,7 @@ def complete_verification(request, key):
     return redirect(reverse("core:home"))
 
 
+# aceess 토큰을 위한 code를 받기 위한 함수
 def github_login(request):
     client_id = os.environ.get("GH_ID")
     redirect_uri = "http://127.0.0.1:8000/users/login/github/callback"
@@ -89,22 +89,75 @@ def github_login(request):
     )
 
 
+class GithubException(Exception):
+    pass
+
+
 def github_callback(request):
-    client_id = os.environ.get("GH_ID")
-    client_secret = os.environ.get("GH_SECRET")
-    code = request.GET.get("code", None)
-    if code is not None:
-        request = requests.post(
-            f"https://github.com/login/oauth/access_token?client_id={client_id}&client_secret={client_secret}&code={code}",
-            headers={"Accept": "application/json"},
-        )
-        # code로 부터 받은 access 토큰을 출력했다
-        print(request.json())
-    else:
-        return redirect(reverse("core:home"))
+    try:
+        client_id = os.environ.get("GH_ID")
+        client_secret = os.environ.get("GH_SECRET")
+        code = request.GET.get("code", None)
+        if code is not None:
+            token_request = requests.post(
+                f"https://github.com/login/oauth/access_token?client_id={client_id}&client_secret={client_secret}&code={code}",
+                headers={"Accept": "application/json"},
+            )
+            # code로 부터 받은 access 토큰을 추출했다
+            token_json = token_request.json()
+            error = token_json.get("error", None)
+            if error is not None:
+                raise GithubException()
+            else:
+                access_token = token_json.get("access_token")
+                profile_request = requests.get(
+                    "https://api.github.com/user",
+                    headers={
+                        "Authorization": f"token {access_token}",
+                        "Accept": "application/json",
+                    },
+                )
+                profile_json = profile_request.json()
+                print(profile_json)
+                username = profile_json.get("login", None)
+                if username is not None:
+                    name = profile_json.get("name")
+                    email = profile_json.get("email")
+                    bio = profile_json.get("bio")
+                    try:
+                        user = models.User.objects.get(email=email)
+                        if user.login_method != models.User.LOGIN_GITHUB:
+                            raise GithubException()
+                    except models.User.DoesNotExist:
+                        user = models.User.objects.create(
+                            email=email,
+                            first_name=name,
+                            username=email,
+                            bio=bio,
+                            login_method=models.User.LOGIN_GITHUB,
+                        )
+                        user.set_unusable_password()
+                        # 암호를 통한 로그인 x, 외부인증 OAuth에 의한 유저 이기 때문. 이 설정은 save를 하지 않음. 따라서 따로 save 해야함.
+                        user.save()
+                    login(request, user)
+                    return redirect(reverse("core:home"))
+                else:
+                    raise GithubException()
+        else:
+            raise GithubException()
+    except GithubException:
+        return redirect(reverse("users:login"))
 
 
-# Create your views here.
+#                      if user is not None:
+#                         return redirect(reverse("users:login"))
+#                     else:
+#                         user = models.User.objects.create(
+#                             username=email, first_name=name, bio=bio, email=email
+#                         )
+#                         login(request, user)
+#                         return redirect(reverse("core:home"))
+# # Create your views here.
 # class LoginView(View):
 #     def get(self, request):
 #         form = forms.LoginForm(initial={"email": "rladlsgh654@naver.com"})
