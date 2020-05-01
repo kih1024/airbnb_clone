@@ -1,10 +1,10 @@
-<ul class="flex items-center text-sm font-medium">
+<ul class="flex items-center text-sm font-medium h-full">
 {% comment %} user는 어디서 나온것인가? django는 context processor 라는 함수가 있어서 나의 템플릿에 정보를 추가하는 일을한다 {% endcomment %}
 {% comment %} 따라서 이경우에는 context processor 가 있는데 쿠기를 가지고 와서 user를 찾고 그걸 템플릿에 자동으로 넣어준다. {% endcomment %}
   {% if user.is_authenticated  %}
-    <li class="ml-8"><a href="{% url "users:logout" %}">Log out</a></li>
+    <li class="nav_link"><a href="{% url "users:logout" %}">Log out</a></li>
   {% else %}
-    <li class="ml-8"><a href="{% url "users:login" %}">Login</a></li> 
-    <li class="ml-8"><a href="{% url "users:signup" %}">Sign up</a></li> 
+    <li class="nav_link"><a href="{% url "users:login" %}">Log in</a></li> 
+    <li class="nav_link"><a href="{% url "users:signup" %}">Sign up</a></li> 
   {% endif %}
 </ul>
