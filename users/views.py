@@ -1,11 +1,12 @@
 import os
 import requests
 from django.views import View
-from django.views.generic import FormView
+from django.views.generic import FormView , DetailView
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import authenticate, login, logout
 from django.core.files.base import ContentFile
+from django.contrib import messages
 from . import forms, models
 
 
@@ -28,6 +29,7 @@ class LoginView(FormView):
 
 
 def log_out(request):
+    messages.info(request, "나중에 봐요!")
     logout(request)
     return redirect(reverse("core:home"))
 
@@ -103,7 +105,7 @@ def github_callback(request):
             token_json = token_request.json()
             error = token_json.get("error", None)
             if error is not None:
-                raise GithubException()
+                raise GithubException("Can't get access token")
             else:
                 access_token = token_json.get("access_token")
                 profile_request = requests.get(
@@ -123,7 +125,7 @@ def github_callback(request):
                     try:
                         user = models.User.objects.get(email=email)
                         if user.login_method != models.User.LOGIN_GITHUB:
-                            raise GithubException()
+                            raise GithubException(f"Please log in with: {user.login_method}")
                     except models.User.DoesNotExist:
                         user = models.User.objects.create(
                             email=email,
@@ -137,12 +139,14 @@ def github_callback(request):
                         # 암호를 통한 로그인 x, 외부인증 OAuth에 의한 유저 이기 때문. 이 설정은 save를 하지 않음. 따라서 따로 save 해야함.
                         user.save()
                     login(request, user)
+                    messages.success(request, f"{user.first_name}님 환영합니다!")
                     return redirect(reverse("core:home"))
                 else:
-                    raise GithubException()
+                    raise GithubException("Can't get your profile")
         else:
-            raise GithubException()
-    except GithubException:
+            raise GithubException("Can't get code")
+    except GithubException as e:
+        messages.error(request, e)
         return redirect(reverse("users:login"))
 
 
@@ -169,7 +173,7 @@ def kakao_callback(request):
         token_json = token_request.json()
         error = token_json.get("error", None)
         if error is not None:
-            raise KakaoException()
+            raise KakaoException("Can't get autorization code.")
         access_token = token_json.get("access_token")
         profile_request = requests.get(
             "https://kapi.kakao.com/v2/user/me",
@@ -180,14 +184,14 @@ def kakao_callback(request):
         kakao_account = profile_json.get("kakao_account")
         email = kakao_account.get("email", None)
         if email is None:
-            raise KakaoException()
+            raise KakaoException("Please also give me your email")
         profile = kakao_account.get("profile")
         nickname = profile.get("nickname")
         profile_image = profile.get("profile_image_url", None)
         try:
             user = models.User.objects.get(email=email)
             if user.login_method != models.User.LOGIN_KAKAO:
-                raise KakaoException()
+                raise KakaoException(f"Please log in with: {user.login_method}")
         except models.User.DoesNotExist:
             user = models.User.objects.create(
                 email=email,
@@ -204,9 +208,16 @@ def kakao_callback(request):
                     f"{nickname}-avatar", ContentFile(photo_request.content)
                 )
         login(request, user)
+        messages.success(request, f"{user.first_name}님 환영합니다!")
         return redirect(reverse("core:home"))
-    except KakaoException:
+    except KakaoException as e:
+        messages.error(request, e)
         return redirect(reverse("users:login"))
+
+class UserProfileView(DetailView):
+    model = models.User
+    # context_object_name를 설정 안하면(기본값 : none) user 객체에 지금 보고 있는 view의 사용자 정보 객체로 덮어 씌어지게 된다. 따라서 context_object_name 를 새로운 객체로 설정해줘서 기존의 로그인된 정보인 user 객체를 보존 해준다.
+    context_object_name = "user_obj"
 
 
 #                      if user is not None:
