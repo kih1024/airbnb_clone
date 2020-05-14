@@ -12,19 +12,8 @@
 {% block content %}
     <div class="container xl:w-1/4 lg:w-5/12 md:w-1/2 mx-auto my-10 flex flex-col items-center border p-6 border-gray-400">
         {% include 'partials/social_login.html' %}
-        <form method="POST" action="{% url "users:login" %}" class="w-full">
-            {% comment %} csrf는 이 사이트에서 로그인했는지 확인해준다
-            만약 post한 토큰이 이 사이트의 토큰과 다르면 로그인을 못함
-            따라서 다른 사이트에서 로그인할수 있는것을 방지한다.{% endcomment %}
-            {% csrf_token %}
-            <div class="input">
-                {{form.email}}
-            </div>
-            <div class="input">
-                {{form.password}}
-            </div>
-            <button class="btn bg-red-500 text-white">Login</button>
-        </form>
+
+        {% include 'mixins/auth/auth_form.html' with form=form cta="Log in" %}
 
         <div class="mt-5">
             <span class="mr-2">계정이 없으신가요?</span>

@@ -11,7 +11,7 @@
         </div>
         <div class="flex flex-wrap -mx-40 mb-10">
             {% for room in rooms %}
-                {% include 'partials/room_card.html' with room=room %}
+                {% include 'mixins/room_card.html' with room=room %}
             {% endfor %}
         </div>
     {% comment %} listview에서 page_obj는 paginator를 꽁짜로 가져온것임  {% endcomment %}
