@@ -8,5 +8,6 @@
     "--max-line-length=88",
     "--ignore=E302,E305,E501,E231,F841,F823,F401,"
   ],
-  "python.linting.banditEnabled": false
+  "python.linting.banditEnabled": false,
+  "emmet.includeLanguages": {"django-html": "html"},
 }
