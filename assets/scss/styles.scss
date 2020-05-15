@@ -19,6 +19,10 @@
 .btn {
   @apply text-center rounded-sm py-5 text-lg font-semibold w-full;
 }
+
+.btn-link{
+  @apply text-center text-lg py-3 rounded-lg font-semibold w-full text-white bg-red-500;
+}
 input {
   @apply rounded-sm py-5 text-lg font-semibold w-full text-left border border-gray-600 px-5;
   &:focus {
