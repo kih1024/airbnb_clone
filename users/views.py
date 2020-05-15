@@ -1,7 +1,7 @@
 import os
 import requests
 from django.views import View
-from django.views.generic import FormView , DetailView
+from django.views.generic import FormView, DetailView
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import authenticate, login, logout
@@ -125,7 +125,9 @@ def github_callback(request):
                     try:
                         user = models.User.objects.get(email=email)
                         if user.login_method != models.User.LOGIN_GITHUB:
-                            raise GithubException(f"Please log in with: {user.login_method}")
+                            raise GithubException(
+                                f"Please log in with: {user.login_method}"
+                            )
                     except models.User.DoesNotExist:
                         user = models.User.objects.create(
                             email=email,
@@ -214,10 +216,17 @@ def kakao_callback(request):
         messages.error(request, e)
         return redirect(reverse("users:login"))
 
+
 class UserProfileView(DetailView):
     model = models.User
     # context_object_name를 설정 안하면(기본값 : none) user 객체에 지금 보고 있는 view의 사용자 정보 객체로 덮어 씌어지게 된다. 따라서 context_object_name 를 새로운 객체로 설정해줘서 기존의 로그인된 정보인 user 객체를 보존 해준다.
     context_object_name = "user_obj"
+
+    # 다음과 같이 객체를 새로 추가할수도 있음.
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context["hello"] = "Hello!"
+    #     return context
 
 
 #                      if user is not None:
