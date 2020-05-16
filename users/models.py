@@ -91,3 +91,4 @@ class User(AbstractUser):
             # strip_tags는 html을 html형태를 제외한 상태로 return하는 거다. html 메세지를 text메세지를 바꾸기 위해서
             # 그 이유는 가끔씩 html_message를 이메일로 보낼 수 없기 때문이다.
         return
+
