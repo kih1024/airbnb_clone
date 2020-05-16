@@ -1,4 +1,5 @@
-<form method="POST" class="w-full">
+<form method="POST" class="w-full" enctype="multipart/form-data">
+{% comment %} enctype를 설정해줘야 업데이트시 정상적으로 사진이 업로드 됨. 이거 없으면 백엔드에서 보낸 파일을 받지 못함. {% endcomment %}
     {% csrf_token %}
     {% comment %} csrf는 이 사이트에서 로그인했는지 확인해준다
     만약 post한 토큰이 이 사이트의 토큰과 다르면 로그인을 못함
