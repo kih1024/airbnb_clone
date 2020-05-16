@@ -16,14 +16,13 @@
                 {% if user_obj.superhost %}
                         <i class="fas fa-check-circle text-teal-400 ml-1"></i>
                 {% endif %}
-
-                
+            
             </div>
             
             <span class="font-medium text-lg mb-5">{{user_obj.bio}}</span>
 
             {% if user == user_obj %}
-                <a href="#" class="btn-link">Edit Profile</a>
+                <a href="{% url 'users:update' %}" class="btn-link">Edit Profile</a>
             {% endif %}
         </div>
 
