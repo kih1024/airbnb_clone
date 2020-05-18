@@ -1,21 +1,23 @@
 import os
 import requests
+
 # from django.views import View
 from django.contrib.auth.views import PasswordChangeView
 from django.views.generic import FormView, DetailView, UpdateView
+from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import authenticate, login, logout
 from django.core.files.base import ContentFile
 from django.contrib import messages
-from . import forms, models
+from . import forms, models, mixins
 
 
-class LoginView(FormView):
+class LoginView(mixins.LoggedOutOnlyView, FormView):
     template_name = "users/login.html"
     form_class = forms.LoginForm
-    # 그냥 reverse를 사용하면 view을 불러올때 url이 아직 불려지지 않아서 오류가 발생한다.(lazy : 실행하지 않는다) 그래서 view가 필요할떄만 호출하는 reverse_lazy라는 것을 사용한다고 한다.
-    success_url = reverse_lazy("core:home")
+    # 그냥 reverse를 사용하면 view을 불러올때 view가 필요할때(미리 불러와서) url이 아직 불려지지 않아서 오류가 발생한다.(lazy : 실행하지 않는다) 그래서 view가 필요할떄만 호출하는 reverse_lazy라는 것을 사용한다고 한다. view 함수일때 쓰면 된다.
+    # success_url = reverse_lazy("core:home")
     initial = {"email": "rladlsgh654@naver.com"}
 
     # 이 함수는 그전에 구현했던 ( form = forms.LoginForm(request.POST) ; if form.is_valid(): ) 부분을 대체해준다. 말 그대로 폼이 유효한지 체크
@@ -27,6 +29,13 @@ class LoginView(FormView):
             login(self.request, user)
         return super().form_valid(form)
         # 이게 호출시 success_url로 가고 작동한다. render 할 필요가 없음.
+
+    def get_success_url(self):
+        next_arg = self.request.GET.get("next")
+        if next_arg is not None:
+            return next_arg
+        else:
+            return reverse("core:home")
 
 
 def log_out(request):
@@ -230,7 +239,7 @@ class UserProfileView(DetailView):
     #     return context
 
 
-class UpdateProfileView(UpdateView):
+class UpdateProfileView(mixins.LoggedInOnlyView, SuccessMessageMixin, UpdateView):
     model = models.User
     template_name = "users/update-profile.html"
     fields = (
@@ -242,13 +251,46 @@ class UpdateProfileView(UpdateView):
         "language",
         "currency",
     )
+    success_message = "Profile Updated"
 
     def get_object(self, queryset=None):
         return self.request.user
 
-class UpdatePasswordView(PasswordChangeView):
-    
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=form_class)
+        print(form)
+        form.fields["first_name"].widget.attrs = {"placeholder": "First name"}
+        form.fields["last_name"].widget.attrs = {"placeholder": "Last name"}
+        form.fields["gender"].widget.attrs = {"placeholder": "Gender"}
+        form.fields["bio"].widget.attrs = {"placeholder": "Bio"}
+        form.fields["birthdate"].widget.attrs = {"placeholder": "Birthdate"}
+        form.fields["language"].widget.attrs = {"placeholder": "Language"}
+        form.fields["currency"].widget.attrs = {"placeholder": "Currency"}
+        return form
+
+
+class UpdatePasswordView(
+    mixins.LoggedInOnlyView,
+    mixins.EmailLoginOnlyView,
+    SuccessMessageMixin,
+    PasswordChangeView,
+):
     template_name = "users/update-password.html"
+    success_message = "Password Updated"
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=form_class)
+        # print(form)
+        form.fields["old_password"].widget.attrs = {"placeholder": "Current password"}
+        form.fields["new_password1"].widget.attrs = {"placeholder": "New Password"}
+        form.fields["new_password2"].widget.attrs = {
+            "placeholder": "Confirm new password"
+        }
+        return form
+
+    def get_success_url(self):
+        return self.request.user.get_absolute_url()
+
 
 #                      if user is not None:
 #                         return redirect(reverse("users:login"))
