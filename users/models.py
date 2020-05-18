@@ -7,6 +7,7 @@ from django.utils.html import strip_tags
 from django.shortcuts import reverse
 from django.template.loader import render_to_string
 
+
 # template를 road해서 render 한다
 
 
@@ -50,7 +51,6 @@ class User(AbstractUser):
         (LOGIN_GITHUB, "Github"),
         (LOGIN_KAKAO, "Kakao"),
     )
-
     bio = models.TextField(blank=True)
     avatar = models.ImageField(upload_to="avatars", blank=True)
     gender = models.CharField(choices=GENDER_CHOICES, max_length=10, blank=True)
@@ -68,7 +68,7 @@ class User(AbstractUser):
         max_length=50, choices=LOGIN_CHOICES, default=LOGIN_EMAIL
     )
 
-    # 이렇게 하는 방법은 어드민 패널에서 객체들을 보고 싶을떄 요긴함. user -> view on site 버튼이 생성됨.
+    # 이렇게 하는 방법은 어드민 패널에서 객체들을 보고 싶을떄 요긴함. user -> view on site 버튼이 생성됨. nav.html 에서 쓰임.
     def get_absolute_url(self):
         return reverse("users:profile", kwargs={"pk": self.pk})
 
@@ -91,4 +91,3 @@ class User(AbstractUser):
             # strip_tags는 html을 html형태를 제외한 상태로 return하는 거다. html 메세지를 text메세지를 바꾸기 위해서
             # 그 이유는 가끔씩 html_message를 이메일로 보낼 수 없기 때문이다.
         return
-
