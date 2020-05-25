@@ -1,6 +1,8 @@
-from django.views.generic import ListView, DetailView, View
+from django.http import Http404
+from django.views.generic import ListView, DetailView, View, UpdateView
 from django.shortcuts import render
 from django.core.paginator import Paginator
+from users import mixins as user_mixins
 from . import models, forms
 
 # from django.http import Http404
@@ -29,8 +31,8 @@ class RoomDetail(DetailView):
 
     model = models.Room
 
-class SearchView(View):
 
+class SearchView(View):
     def get(self, request):
         country = request.GET.get("country")
         if country:
@@ -85,14 +87,58 @@ class SearchView(View):
                     qs = qs.filter(facilities=facility)
 
                 paginator = Paginator(qs, 10, orphans=5)
-                page = request.GET.get("page",1)
+                page = request.GET.get("page", 1)
                 rooms = paginator.get_page(page)
-                return render(request, "rooms/search.html", {"form": form, "rooms":rooms})
+                return render(
+                    request, "rooms/search.html", {"form": form, "rooms": rooms}
+                )
         else:
             form = forms.SearchForm()
 
         return render(request, "rooms/search.html", {"form": form})
-        
+
+
+class EditRoomView(user_mixins.LoggedInOnlyView, UpdateView):
+    model = models.Room
+    template_name = "rooms/room_edit.html"
+    fields = (
+        "name",
+        "description",
+        "country",
+        "city",
+        "price",
+        "address",
+        "guests",
+        "beds",
+        "bedrooms",
+        "baths",
+        "check_in",
+        "check_out",
+        "instant_book",
+        "room_type",
+        "amenities",
+        "facilities",
+        "house_rules",
+    )
+
+    def get_object(self, queryset=None):
+        room = super().get_object(queryset=queryset)
+        if room.host.pk != self.request.user.pk:
+            raise Http404()
+        return room
+
+
+class RoomPhotosView(user_mixins.LoggedInOnlyView, RoomDetail):
+
+    model = models.Room
+    template_name = "rooms/room_photos.html"
+
+    def get_object(self, queryset=None):
+        room = super().get_object(queryset=queryset)
+        if room.host.pk != self.request.user.pk:
+            raise Http404()
+        return room
+
 
 # def search(request):
 
@@ -151,6 +197,3 @@ class SearchView(View):
 #         form = forms.SearchForm()
 
 #     return render(request, "rooms/search.html", {"form": form, "rooms": rooms})
-
-
-
