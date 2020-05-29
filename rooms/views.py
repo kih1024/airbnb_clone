@@ -1,17 +1,18 @@
 from django.http import Http404
-from django.views.generic import ListView, DetailView, View, UpdateView
-from django.shortcuts import render
+from django.views.generic import (
+    ListView,
+    DetailView,
+    View,
+    UpdateView,
+    FormView,
+)
+from django.contrib.messages.views import SuccessMessageMixin
+from django.shortcuts import render, redirect, reverse
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from users import mixins as user_mixins
 from . import models, forms
-
-# from django.http import Http404
-# from django.shortcuts import render
-
-# from django.shortcuts import render, redirect
-# from django.core.paginator import Paginator, EmptyPage
-
-# from django.http import HttpResponse
 
 # https://ccbv.co.uk/projects/Django/3.0/django.views.generic.list/ListView/  참고
 class HomeView(ListView):
@@ -140,60 +141,44 @@ class RoomPhotosView(user_mixins.LoggedInOnlyView, RoomDetail):
         return room
 
 
-# def search(request):
+@login_required
+def delete_photo(request, room_pk, photo_pk):
+    user = request.user
+    try:
+        room = models.Room.objects.get(pk=room_pk)
+        if room.host.pk != user.pk:
+            messages.error(request, "해당 사진을 삭제할 수 없습니다.")
+        else:
+            models.Photo.objects.filter(pk=photo_pk).delete()
+            messages.success(request, "사진 삭제 완료.")
+        return redirect(reverse("rooms:photos", kwargs={"pk": room_pk}))
+    except models.Room.DoesNotExist:
+        return redirect(reverse("core:home"))
 
-#     country = request.GET.get("country")
-#     if country:
-#         form = forms.SearchForm(request.GET)
 
-#         if form.is_valid():
-#             print(form.cleaned_data)
-#             city = form.cleaned_data.get("city")
-#             country = form.cleaned_data.get("country")
-#             room_type = form.cleaned_data.get("room_type")
-#             price = form.cleaned_data.get("price")
-#             guests = form.cleaned_data.get("guests")
-#             bedrooms = form.cleaned_data.get("bedrooms")
-#             beds = form.cleaned_data.get("beds")
-#             baths = form.cleaned_data.get("baths")
-#             instant_book = form.cleaned_data.get("instant_book")
-#             superhost = form.cleaned_data.get("superhost")
-#             amenities = form.cleaned_data.get("amenities")
-#             facilities = form.cleaned_data.get("facilities")
+class EditPhotoView(user_mixins.LoggedInOnlyView, SuccessMessageMixin, UpdateView):
 
-#             filter_args = {}
+    model = models.Photo
+    template_name = "rooms/photo_edit.html"
+    pk_url_kwarg = "photo_pk"
+    success_message = "사진 업데이트 완료"
+    fields = ("caption",)
 
-#             if city != "Anywhere":
-#                 filter_args["city__startswith"] = city
+    def get_success_url(self):
+        room_pk = self.kwargs.get("room_pk")
+        return reverse("rooms:photos", kwargs={"pk": room_pk})
 
-#             filter_args["country"] = country
 
-#             # print(filter_args)
+class AddPhotoView(user_mixins.LoggedInOnlyView, FormView):
 
-#             if room_type is not None:
-#                 filter_args["room_type"] = room_type
-#             if price is not None:
-#                 filter_args["price__lte"] = price
-#             if guests is not None:
-#                 filter_args["guests__gte"] = guests
-#             if bedrooms is not None:
-#                 filter_args["bedrooms__gte"] = bedrooms
-#             if beds is not None:
-#                 filter_args["beds__gte"] = beds
-#             if baths is not None:
-#                 filter_args["baths__gte"] = baths
-#             if instant_book is True:
-#                 filter_args["instant_book"] = True
-#             if superhost is True:
-#                 filter_args["host__superhost"] = True
+    model = models.Photo
+    template_name = "rooms/photo_create.html"
+    fields = ("caption", "file")
+    form_class = forms.CreatePhotoForm
 
-#             rooms = models.Room.objects.filter(**filter_args)
-
-#             for amenity in amenities:
-#                 rooms = rooms.filter(amenities=amenity)
-#             for facility in facilities:
-#                 rooms = rooms.filter(facilities=facility)
-#     else:
-#         form = forms.SearchForm()
-
-#     return render(request, "rooms/search.html", {"form": form, "rooms": rooms})
+    # from_valid는 항상 http response를 리턴 해주어야함.
+    def form_valid(self, form):
+        pk = self.kwargs.get("pk")
+        form.save(pk)
+        messages.success(self.request, "사진 업로드 완료")
+        return redirect(reverse("rooms:photos", kwargs={"pk": pk}))
