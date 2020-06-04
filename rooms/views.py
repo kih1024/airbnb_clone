@@ -171,14 +171,29 @@ class EditPhotoView(user_mixins.LoggedInOnlyView, SuccessMessageMixin, UpdateVie
 
 class AddPhotoView(user_mixins.LoggedInOnlyView, FormView):
 
-    model = models.Photo
     template_name = "rooms/photo_create.html"
-    fields = ("caption", "file")
     form_class = forms.CreatePhotoForm
 
     # from_valid는 항상 http response를 리턴 해주어야함.
     def form_valid(self, form):
         pk = self.kwargs.get("pk")
+        # 방의 pk를 넘겨줌
         form.save(pk)
         messages.success(self.request, "사진 업로드 완료")
         return redirect(reverse("rooms:photos", kwargs={"pk": pk}))
+
+class CreateRoomView(user_mixins.LoggedInOnlyView, FormView):
+
+    form_class = forms.CreateRoomForm
+    template_name = "rooms/room_create.html"
+
+    def form_valid(self, form):
+        room = form.save()
+        room.host = self.request.user
+        # 모델의 save는 폼의 save랑 다른 것임. 데이터를 디비에 저장한다는 점에서 하는일은 같음.
+        room.save()
+        # save_m2m() 함수는 데이터를 데이터베이스에 save해야만 사용할 수 있음.
+        form.save_m2m()
+        messages.success(self.request, "방 업로드 완료")
+        return redirect(reverse("rooms:detail", kwargs={"pk":room.pk}))
+
