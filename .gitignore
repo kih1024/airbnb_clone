@@ -130,3 +130,6 @@ dmypy.json
 
 uploads/
 node_modules/
+
+0*.py
+__init__.py

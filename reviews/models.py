@@ -23,7 +23,7 @@ class Review(core_models.TimeStampedModel):
     def __str__(self):
         return f"{self.review} - {self.room}"
 
-    def rating_average(self): # 이 함수는 다른곳에도 쓰일것이기 때문에 admin에 포함안하고 model에 만들었다.
+    def rating_average(self):  # 이 함수는 다른곳에도 쓰일것이기 때문에 admin에 포함안하고 model에 만들었다.
         avg = (
             self.accuracy
             + self.communication
@@ -34,6 +34,7 @@ class Review(core_models.TimeStampedModel):
         ) / 6
 
         return round(avg, 2)
+
     rating_average.short_description = "Avg."
 
 
