@@ -20,4 +20,9 @@ class ReservationAdmin(admin.ModelAdmin):
     list_filter = ("status",)
 
 
+@admin.register(models.BookedDay)
+class BookDayAdmin(admin.ModelAdmin):
+    list_display = ("day", "reservation")
+
+
 # Register your models here.
