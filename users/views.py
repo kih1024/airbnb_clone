@@ -1,7 +1,7 @@
 import os
 import requests
-
-# from django.views import View
+from django.utils import translation
+from django.http import HttpResponse
 from django.contrib.auth.views import PasswordChangeView
 from django.views.generic import FormView, DetailView, UpdateView
 from django.contrib.messages.views import SuccessMessageMixin
@@ -11,6 +11,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 from django.contrib import messages
+from django.conf import settings
 from . import forms, models, mixins
 
 
@@ -40,7 +41,7 @@ class LoginView(mixins.LoggedOutOnlyView, FormView):
 
 
 def log_out(request):
-    messages.info(request, "나중에 봐요!")
+    messages.info(request, "See you later!")
     logout(request)
     return redirect(reverse("core:home"))
 
@@ -152,7 +153,7 @@ def github_callback(request):
                         # 암호를 통한 로그인 x, 외부인증 OAuth에 의한 유저 이기 때문. 이 설정은 save를 하지 않음. 따라서 따로 save 해야함.
                         user.save()
                     login(request, user)
-                    messages.success(request, f"{user.first_name}님 환영합니다!")
+                    messages.success(request, f"Welcome {user.first_name}!")
                     return redirect(reverse("core:home"))
                 else:
                     raise GithubException("Can't get your profile")
@@ -221,7 +222,7 @@ def kakao_callback(request):
                     f"{nickname}-avatar", ContentFile(photo_request.content)
                 )
         login(request, user)
-        messages.success(request, f"{user.first_name}님 환영합니다!")
+        messages.success(request, f"Welcome {user.first_name}!")
         return redirect(reverse("core:home"))
     except KakaoException as e:
         messages.error(request, e)
@@ -292,6 +293,7 @@ class UpdatePasswordView(
     def get_success_url(self):
         return self.request.user.get_absolute_url()
 
+
 @login_required
 def switch_hosting(request):
     try:
@@ -299,3 +301,13 @@ def switch_hosting(request):
     except KeyError:
         request.session["is_hosting"] = True
     return redirect(reverse("core:home"))
+
+
+def switch_language(request):
+    # lang을 쿠키에 등록해주는 부분
+    lang = request.GET.get("lang", None)
+    translation.activate(lang)
+    # request.session[translation.LANGUAGE_SESSION_KEY] = lang
+    response = HttpResponse(status=200)
+    response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang)
+    return response

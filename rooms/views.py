@@ -147,10 +147,10 @@ def delete_photo(request, room_pk, photo_pk):
     try:
         room = models.Room.objects.get(pk=room_pk)
         if room.host.pk != user.pk:
-            messages.error(request, "해당 사진을 삭제할 수 없습니다.")
+            messages.error(request, "The picture cannot be deleted.")
         else:
             models.Photo.objects.filter(pk=photo_pk).delete()
-            messages.success(request, "사진 삭제 완료.")
+            messages.success(request, "Deletion completed.")
         return redirect(reverse("rooms:photos", kwargs={"pk": room_pk}))
     except models.Room.DoesNotExist:
         return redirect(reverse("core:home"))
@@ -161,7 +161,7 @@ class EditPhotoView(user_mixins.LoggedInOnlyView, SuccessMessageMixin, UpdateVie
     model = models.Photo
     template_name = "rooms/photo_edit.html"
     pk_url_kwarg = "photo_pk"
-    success_message = "사진 업데이트 완료"
+    success_message = "Photo update complete"
     fields = ("caption",)
 
     def get_success_url(self):
@@ -179,7 +179,7 @@ class AddPhotoView(user_mixins.LoggedInOnlyView, FormView):
         pk = self.kwargs.get("pk")
         # 방의 pk를 넘겨줌
         form.save(pk)
-        messages.success(self.request, "사진 업로드 완료")
+        messages.success(self.request, "Photo upload complete")
         return redirect(reverse("rooms:photos", kwargs={"pk": pk}))
 
 class CreateRoomView(user_mixins.LoggedInOnlyView, FormView):
@@ -194,6 +194,6 @@ class CreateRoomView(user_mixins.LoggedInOnlyView, FormView):
         room.save()
         # save_m2m() 함수는 데이터를 데이터베이스에 save해야만 사용할 수 있음.
         form.save_m2m()
-        messages.success(self.request, "방 업로드 완료")
+        messages.success(self.request, "Room upload complete")
         return redirect(reverse("rooms:detail", kwargs={"pk":room.pk}))
 
