@@ -7,6 +7,7 @@ from django.core.mail import send_mail
 from django.utils.html import strip_tags
 from django.shortcuts import reverse
 from django.template.loader import render_to_string
+from core import managers as core_managers
 
 
 # template를 road해서 render 한다
@@ -74,8 +75,9 @@ class User(AbstractUser):
     login_method = models.CharField(
         max_length=50, choices=LOGIN_CHOICES, default=LOGIN_EMAIL
     )
-
+    objects = core_managers.CustomUserManager()
     # 이렇게 하는 방법은 어드민 패널에서 객체들을 보고 싶을떄 요긴함. user -> view on site 버튼이 생성됨. nav.html 에서 쓰임.
+
     def get_absolute_url(self):
         return reverse("users:profile", kwargs={"pk": self.pk})
 
