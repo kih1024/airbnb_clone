@@ -11,7 +11,11 @@ module.exports = {
       },
       padding: {
         "0.8": '0.2rem'
-      }
+      },
+      minHeight: {
+        "50vh": "50vh",
+        "75vh": "75vh"
+      },
     },
   },
   variants: {},

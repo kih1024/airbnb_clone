@@ -1,0 +1,80 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-06-17 16:04+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: .\templates\base.html:21
+msgid "Search by City"
+msgstr "도시 이름으로 검색"
+
+#: .\templates\partials\footer.html:6
+msgid "Please don't copy us."
+msgstr "복제 하지마세요!"
+
+#: .\templates\partials\footer.html:9
+msgid "All rights reserved."
+msgstr "All rights reserved."
+
+#: .\templates\rooms\room_list.html:26
+#, python-format
+msgid "Page %(current_page)s of %(total_pages)s"
+msgstr "페이지 %(current_page)s 총 %(total_pages)s"
+
+#: .\users\mixins.py:15
+msgid "Can't go there"
+msgstr "다른 회원으로는 접근할 수 없습니다."
+
+#: .\users\mixins.py:25
+msgid "Can't go there!"
+msgstr "로그인 상태로 접속할 수 없습니다!"
+
+#: .\users\models.py:33
+msgid "Male"
+msgstr "남자"
+
+#: .\users\models.py:34
+msgid "Female"
+msgstr "여자"
+
+#: .\users\models.py:35
+msgid "Other"
+msgstr "기타"
+
+#: .\users\models.py:42
+msgid "English"
+msgstr "영어"
+
+#: .\users\models.py:43
+msgid "Korean"
+msgstr "한국어"
+
+#: .\users\models.py:55
+msgid "bio"
+msgstr "소개"
+
+#: .\users\models.py:58
+msgid "gender"
+msgstr "성별"
+
+#: .\users\models.py:62
+msgid "language"
+msgstr "언어"
+
+#: .\users\models.py:90
+msgid "Verify Airbnb Account"
+msgstr "Airbnb 계정 확인"
