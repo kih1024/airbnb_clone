@@ -6,7 +6,7 @@
 
 {% block content %}
 
-    <div {% if user_obj.rooms.count <= 4 %}class="h-75vh"{% endif %}>
+    <div class="min-h-75vh">
         <div class="container xl:w-1/4 lg:w-5/12 md:w-1/2 mx-auto my-10 flex flex-col items-center border p-6 border-gray-400">
             {% include "mixins/user_avatar.html" with user=user_obj %}
 
