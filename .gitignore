@@ -131,7 +131,6 @@ dmypy.json
 uploads/
 node_modules/
 
-0*.py
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
