@@ -15,6 +15,7 @@ astroid==2.3.3
 attrs==19.3.0
 black==19.10b0
 click==7.1.1
+colorama==7.1.2
 entrypoints==0.3
 flake8==3.7.9
 isort==4.3.21
