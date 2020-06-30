@@ -4,8 +4,6 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-black = "*"
-pylint = "*"
 flake8 = "*"
 awsebcli = "*"
 
@@ -13,10 +11,12 @@ awsebcli = "*"
 django = "==2.2.13"
 pillow = "*"
 django-countries = "*"
-pylint = "*"
 django-seed = "*"
 django-dotenv = "*"
 requests = "*"
+sentry-sdk = "==0.13.2"
+django-storages = "*"
+boto3 = "*"
 pipenv-to-requirements = "*"
 
 [requires]
