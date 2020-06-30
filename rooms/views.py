@@ -32,6 +32,16 @@ class RoomDetail(DetailView):
 
     model = models.Room
 
+    def get(self, request, *args, **kwargs):
+        idd = self.request.user.pk
+        pk = self.kwargs.get("pk")
+        # print(pk)
+        if idd is None:
+            return redirect(reverse("users:login"))
+        else:
+            self.object = self.get_object()
+            context = self.get_context_data(object=self.object)
+            return self.render_to_response(context)
 
 class SearchView(View):
     def get(self, request):
@@ -182,6 +192,7 @@ class AddPhotoView(user_mixins.LoggedInOnlyView, FormView):
         messages.success(self.request, "Photo upload complete")
         return redirect(reverse("rooms:photos", kwargs={"pk": pk}))
 
+
 class CreateRoomView(user_mixins.LoggedInOnlyView, FormView):
 
     form_class = forms.CreateRoomForm
@@ -195,5 +206,5 @@ class CreateRoomView(user_mixins.LoggedInOnlyView, FormView):
         # save_m2m() 함수는 데이터를 데이터베이스에 save해야만 사용할 수 있음.
         form.save_m2m()
         messages.success(self.request, "Room upload complete")
-        return redirect(reverse("rooms:detail", kwargs={"pk":room.pk}))
+        return redirect(reverse("rooms:detail", kwargs={"pk": room.pk}))
 
